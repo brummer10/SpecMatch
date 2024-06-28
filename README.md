@@ -1,6 +1,6 @@
 # SpecMatch 
 
-![SpechMatch](https://github.com/brummer10/SpecMatch/blob/main/SpecMatch.png?raw=true)
+![SpechMatch](https://github.com/brummer10/SpecMatch/blob/main/SpechMatch.png?raw=true)
 
 A little python3 script to compare the spectrum of two sound-snippets and generate a
 Impulse Response File from the different.
