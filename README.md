@@ -1,6 +1,6 @@
 # SpecMatch 
 
-![SpechMatch](https://github.com/brummer10/SpecMatch/blob/main/SpechMatch.png?raw=true)
+![SpechMatch](https://github.com/brummer10/SpecMatch/blob/main/SpecMatch.png?raw=true)
 
 A little python3 script to compare the spectrum of two sound-snippets and generate a
 Impulse Response File from the different.
@@ -37,8 +37,7 @@ project file or create a new one (changes in projects will be
 auto-saved).
 
 Click on "Destination Sound", this is the Sound you want to match, and select a file.
-The sound snipped should not be much longer than
-10 seconds. 
+The sound snipped should not be much longer than 10 seconds. 
 For stereo sounds, you can select one of the channels (or
 the sum) or produce a stereo IR.
 
@@ -48,8 +47,11 @@ this is the Sound you wont to match the destignation, for comparison.
 Now you could do a Frequency Plot to see the differences in the Frequency domain.
 You could as well do a Time Plot.
 
-You could select the size for the generated IR-File and you could select the 
-Noise Level, that means below the selected level, the signal will be threaded as Noise.
+For the generated IR-File you could set the normalise level (default -25 dBFS), 
+select the size (default 3500 samples)
+and you could select the Noise Level, that means below the selected level,
+the signal will be threaded as Noise (default -60 dB).
 
 You could select if you wish to generate a mono or a stereo IR-File, then you could 
-Generate IR. You could select were you wont to save it, and give a name for it.  
+go to Generate IR. 
+Select were you wont to save it, and give a name for it.  

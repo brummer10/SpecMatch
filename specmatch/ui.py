@@ -269,7 +269,7 @@ class SpecWindow(object):
         sz = d.get("ir_size",0)
         if sz:
             self.ir_size.set_value(sz)
-        self.ir_cut.set_value(d.get("ir_cutoff", -80))
+        self.ir_cut.set_value(d.get("ir_cutoff", -60))
         self.ir_normalize.set_value(d.get("ir_normalize", -25))
         r = d.get("original_range", (None,None))
         self.calc.original_mode = d.get("original_mode",-1)
