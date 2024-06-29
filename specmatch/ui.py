@@ -21,7 +21,6 @@ import matplotlib.pyplot as plt
 from spectrum import CalcIR, fftfreq2, fft2spectrum, SmoothSpectrumSpline, clipdb
 from audiofiles import open_sndfile, write_sndfile, read_sndfile, wav_format_only
 
-print ("load")
 
 class FileDialog(object):
 
@@ -144,6 +143,9 @@ class SpecWindow(object):
         self.ir_size.connect("value-changed", self.on_ir_size)
         self.ir_cut = g("ir_cut")
         self.ir_cut.connect("value-changed", self.on_ir_cut)
+        self.ir_normalize = g("ir_normalize")
+        self.ir_normalize.connect("value-changed", self.on_ir_normalize)
+        self.ir_norm = self.ir_normalize.get_value()
         self.range_from_input = g("range_from")
         self.range_to_input = g("range_to")
         self.channel_left = g("left")
@@ -268,6 +270,7 @@ class SpecWindow(object):
         if sz:
             self.ir_size.set_value(sz)
         self.ir_cut.set_value(d.get("ir_cutoff", -80))
+        self.ir_normalize.set_value(d.get("ir_normalize", -25))
         r = d.get("original_range", (None,None))
         self.calc.original_mode = d.get("original_mode",-1)
         { 0: self.channel_left,
@@ -282,6 +285,7 @@ class SpecWindow(object):
                  source_sound_filename = self.source_sound_filename,
                  ir_size = self.calc.sz,
                  ir_cutoff = self.calc.cutoff,
+                 ir_normalize = self.ir_norm,
                  original_range = self.calc.original_range,
                  original_mode = self.calc.original_mode,
                  )
@@ -301,6 +305,9 @@ class SpecWindow(object):
 
     def on_ir_cut(self, o):
         self.calc.cutoff = self.ir_cut.get_value()
+
+    def on_ir_normalize(self, o):
+       self.ir_norm = self.ir_normalize.get_value()
 
     def on_channel(self, o, mode):
         self.calc.original_mode = mode
@@ -343,7 +350,7 @@ class SpecWindow(object):
                 name += ".wav"
             write_sndfile(self.calc.ir, name, self.get_sample_rate(), "pcm24")
             _sound = AudioSegment.from_file(name)
-            sound = self.match_target_amplitude(_sound, -25.0)
+            sound = self.match_target_amplitude(_sound, self.ir_norm)
             if not self.channel_stereo.get_active():
                 sound = sound.set_channels(1)
             else:
@@ -445,6 +452,8 @@ class SpecWindow(object):
         if plot_ir:
             self.plot_fft(ax, ir_fft, rate, color='black', label="IR [%d frames]" % len(self.calc.ir))
         ax.legend(loc='best')
+        ax.get_xaxis().set_major_formatter(
+            matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
         #ax.set_axis_bgcolor('0.66')
         ax.xaxis.label.set_color('0.77')
         ax.tick_params(axis='x', colors='0.77')
@@ -452,6 +461,8 @@ class SpecWindow(object):
         ax.tick_params(axis='y', colors='0.77')
         self.calc.status.clear()
         plt.grid()
+        plt.xlabel('Hz')
+        plt.ylabel('dB')
 
     def on_display_time(self, o):
         self.calc.status("generating plot")
@@ -482,7 +493,6 @@ class SpecWindow(object):
 
 
 def main():
-    print("start")
     parser = argparse.ArgumentParser(
         description='Calculate an IR to match a spectrum')
     parser.add_argument("specfile", nargs="?", help="project file")
