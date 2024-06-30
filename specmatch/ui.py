@@ -18,9 +18,16 @@ if matplotlib.get_backend() != "GTK3Agg":
     matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
 
-from spectrum import CalcIR, fftfreq2, fft2spectrum, SmoothSpectrumSpline, clipdb
-from audiofiles import open_sndfile, write_sndfile, read_sndfile, wav_format_only
+try:
+    from spectrum import CalcIR, fftfreq2, fft2spectrum, SmoothSpectrumSpline, clipdb
+    from audiofiles import open_sndfile, write_sndfile, read_sndfile, wav_format_only
+except ImportError:
+    from specmatch.spectrum import CalcIR, fftfreq2, fft2spectrum, SmoothSpectrumSpline, clipdb
+    from specmatch.audiofiles import open_sndfile, write_sndfile, read_sndfile, wav_format_only
 
+from os.path import abspath, dirname, join
+
+current_dir = abspath(dirname(__file__))
 
 class FileDialog(object):
 
@@ -113,7 +120,8 @@ class SpecWindow(object):
         self.orig_ir = args.orig_ir
         spec_file = args.specfile
         self.builder = Gtk.Builder()
-        self.builder.add_from_file("specmatch.glade")
+        self.glade_file = join(current_dir, 'specmatch.glade')
+        self.builder.add_from_file(self.glade_file)
         g = self.builder.get_object
 
         self.convolver_box = g("convolver_box")

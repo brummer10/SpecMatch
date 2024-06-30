@@ -8,16 +8,23 @@ Impulse Response File from the different.
 ## Installing:
 ----------------
 Dependencies:
- - python3 gi, os, json, argparse, numpy, matplotlib, pydub, scipy, soundfile, resampy
+ - python3 PyGObject, os, numpy, matplotlib, pydub, scipy, soundfile, resampy
 
-Use "sudo ./install" to install under /usr/local (or
-"sudo ./uninstall" to remove the installation).
+run 
 
-For other target prefixes (like /usr) use
-"sudo ./setup.py install --prefix=XXX" and consult the install script.
-Undoing the installation needs to be done manually is this case.
+`python3 setup.py  bdist_wheel`
 
-SpecMatch could be used without installing directly from the source tree, 
+to build a wheel package and install it with 
+
+`sudo pip install ./dist/specmatch-0.9-py3-none-any.whl`
+
+to uninstall it run
+
+`sudo pip uninstall ./dist/specmatch-0.9-py3-none-any.whl`
+
+
+
+But SpecMatch could be used without installing directly from the source tree, 
 just go to the specmatch folder and run ./specmatch
 You may need to make the file specmatch executable to do so.
 

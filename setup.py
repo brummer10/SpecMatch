@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # Distutils installer for specmatch
 #----------------------------------------------------#
@@ -17,5 +17,5 @@ setup(
     data_files = [('share/applications', ['desktop/specmatch.desktop']),
                   ('share/mime/packages', ['desktop/specmatch.xml']),
                   ],
-    install_requires = ['matplotlib','numpy','scipy','soundfile','gi','pydub','json','argparse'],
+    install_requires = ['matplotlib','numpy','scipy','soundfile','PyGObject','pydub','resampy'],
     )
