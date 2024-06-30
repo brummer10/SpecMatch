@@ -319,7 +319,7 @@ class SpecWindow(object):
 
     def set_file(self, nr, name):
         if nr == 0:
-            f = open_sndfile(name)
+            f = open_sndfile(name, self.fixed_samplerate)
             rate = self.get_sample_rate()
             if rate != f.samplerate:
                 raise ValueError("%s: rate mismatch (%d / %d)" % (name, f.samplerate, rate))
@@ -328,7 +328,7 @@ class SpecWindow(object):
             self.calc.destination_sound_file = f
         elif nr == 1:
             if os.path.exists(name):
-                f = open_sndfile(name)
+                f = open_sndfile(name, self.fixed_samplerate)
                 rate = self.get_sample_rate()
                 if rate != f.samplerate:
                     raise ValueError("%s: rate mismatch (%d / %d)" % (name, f.samplerate, rate))
@@ -342,6 +342,7 @@ class SpecWindow(object):
                     self.ir_size.set_value(min(3500, len(a)))
             self.source_sound_filename = name
             self.source_sound_name.set_text(name)
+            self.set_file(0, self.destination_sound_filename)
         elif nr == 2:
             self.change_file(name)
             return
@@ -392,7 +393,7 @@ class SpecWindow(object):
     def plot_orig_ir(self, ax, rate, **kw):
         if 'label' not in kw:
             kw['label'] = os.path.splitext(os.path.split(self.orig_ir)[1])[0]
-        a = read_sndfile(open_sndfile(self.orig_ir))
+        a = read_sndfile(open_sndfile(self.orig_ir, self.fixed_samplerate))
         n = max(2**14, len(a))
         self.plot_fft(ax, fft.fft(a, n, axis=0), rate, **kw)
 
@@ -462,7 +463,7 @@ class SpecWindow(object):
         self.calc.status.clear()
         plt.grid()
         plt.xlabel('Hz')
-        plt.ylabel('dB')
+        #plt.ylabel('dB')
 
     def on_display_time(self, o):
         self.calc.status("generating plot")

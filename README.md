@@ -8,7 +8,7 @@ Impulse Response File from the different.
 ## Installing:
 ----------------
 Dependencies:
- - python3 gi, os, json, argparse, numpy, matplotlib, pydub, scipy, soundfile
+ - python3 gi, os, json, argparse, numpy, matplotlib, pydub, scipy, soundfile, resampy
 
 Use "sudo ./install" to install under /usr/local (or
 "sudo ./uninstall" to remove the installation).

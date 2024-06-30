@@ -5,17 +5,40 @@ import numpy as np
 #import scipy.io.wavfile
 import soundfile as sf
 
+
 wav_format_only = True
 class SndFile(object):
-    def __init__(self, name):
+    def __init__(self, name, expected_samplerate):
        # self.samplerate, self.data = scipy.io.wavfile.read(name, True)
+        self.expected_samplerate = expected_samplerate
         self.data, self.samplerate = sf.read(name)
+        if self.expected_samplerate != self.samplerate:
+            self.resample()
         self.nframes = len(self.data)
         self.offset = 0
         if len(self.data.shape) == 1:
             self.channels = 1
         else:
             self.channels = self.data.shape[1]
+
+    def resample(self):
+        try:
+            import resampy
+            self.data = resampy.resample(self.data, self.samplerate, self.expected_samplerate)
+            print ("Resample from %iHz to %iHz" % (self.samplerate, self.expected_samplerate))
+            self.samplerate = self.expected_samplerate
+            return
+        except ImportError:
+            print ("resamp not found, try scipy.signal now")
+        try:
+            import scipy.signal as sps
+            number_of_samples = round(len(self.data) * float(self.expected_samplerate) / self.samplerate)
+            self.data = sps.resample(self.data, number_of_samples, filter='kaiser_best')
+            print ("Resample from %iHz to %iHz" % (self.samplerate, self.expected_samplerate))
+            self.samplerate = self.expected_samplerate
+        except ImportError:
+            print ("scipy.signal not found, resampling fail")
+
     def seek(self, n):
         self.offset = n
     def read_frames(self, n):
@@ -36,21 +59,23 @@ class SndFile(object):
         if len(a.shape) == 1:
             a = a.reshape((len(a), 1))
         return a
-def open_sndfile(name):
-    return SndFile(name)
+def open_sndfile(name, expected_samplerate):
+    return SndFile(name, expected_samplerate)
 def read_sndfile(f, channel=-1, n=None):
     return f.read(channel, n)
 def write_sndfile(data, name, rate, enc):
     if enc == "pcm16":
         tp = np.int16
         f = 2**15 - 1
+        subtype = 'PCM_16'
     elif enc == "pcm24":
         tp = np.int32
         f = 2**23 - 1
+        subtype = 'PCM_24'
     else:
         assert False
     m = np.amax(data)
     if m > 1:
         f /= m
     #return scipy.io.wavfile.write(name, int(rate), np.array(data * f, dtype=tp))
-    return sf.write(name, np.array(data * f, dtype=tp), int(rate))
+    return sf.write(name, np.array(data * f, dtype=tp), int(rate), subtype)
