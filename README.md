@@ -40,7 +40,7 @@ line as "specmatch".
 
 
 <p align="center">
-    <img src="https://github.com/brummer10/SpecMatch/blob/desktop/specmath.svg" width="48" />
+    <img src="https://github.com/brummer10/SpecMatch/blob/desktop/specmatch.svg" width="48" />
 </p>
 
 ## Usage:
