@@ -24,7 +24,7 @@ class SndFile(object):
     def resample(self):
         try:
             import resampy
-            self.data = resampy.resample(self.data, self.samplerate, self.expected_samplerate)
+            self.data = resampy.resample(self.data, self.samplerate, self.expected_samplerate, filter='kaiser_best')
             print ("Resample from %iHz to %iHz" % (self.samplerate, self.expected_samplerate))
             self.samplerate = self.expected_samplerate
             return
@@ -33,7 +33,7 @@ class SndFile(object):
         try:
             import scipy.signal as sps
             number_of_samples = round(len(self.data) * float(self.expected_samplerate) / self.samplerate)
-            self.data = sps.resample(self.data, number_of_samples, filter='kaiser_best')
+            self.data = sps.resample(self.data, number_of_samples)
             print ("Resample from %iHz to %iHz" % (self.samplerate, self.expected_samplerate))
             self.samplerate = self.expected_samplerate
         except ImportError:
