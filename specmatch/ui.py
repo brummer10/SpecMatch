@@ -154,6 +154,8 @@ class SpecWindow(object):
         self.ir_normalize = g("ir_normalize")
         self.ir_normalize.connect("value-changed", self.on_ir_normalize)
         self.ir_norm = self.ir_normalize.get_value()
+        self.ir_magnitude = g("ir_magnitude")
+        self.ir_magnitude.connect("value-changed", self.on_ir_magnitude)
         self.range_from_input = g("range_from")
         self.range_to_input = g("range_to")
         self.channel_left = g("left")
@@ -279,6 +281,7 @@ class SpecWindow(object):
             self.ir_size.set_value(sz)
         self.ir_cut.set_value(d.get("ir_cutoff", -60))
         self.ir_normalize.set_value(d.get("ir_normalize", -25))
+        self.ir_magnitude.set_value(d.get("ir_magnitude", -100))
         r = d.get("original_range", (None,None))
         self.calc.original_mode = d.get("original_mode",-1)
         { 0: self.channel_left,
@@ -294,6 +297,7 @@ class SpecWindow(object):
                  ir_size = self.calc.sz,
                  ir_cutoff = self.calc.cutoff,
                  ir_normalize = self.ir_norm,
+                 ir_magnitude = self.calc.magnitude,
                  original_range = self.calc.original_range,
                  original_mode = self.calc.original_mode,
                  )
@@ -316,6 +320,9 @@ class SpecWindow(object):
 
     def on_ir_normalize(self, o):
        self.ir_norm = self.ir_normalize.get_value()
+
+    def on_ir_magnitude(self, o):
+       self.calc.magnitude = self.ir_magnitude.get_value()
 
     def on_channel(self, o, mode):
         self.calc.original_mode = mode

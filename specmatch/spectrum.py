@@ -48,14 +48,14 @@ def r2c_fft(a, n=None):
     else:
         return np.append(a, np.conj(a[-2:0:-1]), axis=0)
 
-def mps(s, n=0, clip=-100):
+def mps(s, n=0, _clip=-100):
     """
     create minimum-phase spectrum from complex spectrum s, use hanning window
     to mask out higher "quefrencys" in the cepstrum.
     https://ccrma.stanford.edu/~jos/filters/Creating_Minimum_Phase_Filters.html
     http://www.dsprelated.com/dspbooks/sasp/Spectral_Envelope_Cepstral_Windowing.html
     """
-    clip=-100
+    clip = _clip
     cp = fft.ifft(np.log(clipdb(s,clip)),axis=0)
     if n:
         n = min(n, len(s))
@@ -211,9 +211,9 @@ class SmoothedIR(object):
         else:
             return np.concatenate(l)
 
-    def get_ir(self, sz, wd=50):
+    def get_ir(self, sz, mag, wd=50):
         x = fftfreq2(sz, 1.0/self.rate)
-        ir = np.real(fft.ifft(mps(spectrum2fft(self(x)),0,0),axis=0))
+        ir = np.real(fft.ifft(mps(spectrum2fft(self(x)),0,mag),axis=0))
         if wd:
             w = sig.hamming(2*wd)[-wd:]
             for i in range(ir.shape[1]):
@@ -264,7 +264,7 @@ class CalcIR(object):
     n = pow2roundup(max(len(a1), len(a2)))
     f1 = fft(a1, n, axis=0)
     f2 = fft(a2, n, axis=0)
-    f3 = SmoothedIR(f1, f2, cutoff, rate).get_ir(sz)
+    f3 = SmoothedIR(f1, f2, cutoff, rate).get_ir(sz, magnitude)
     ir = real(ifft(f3, axis=0))
     """
 
@@ -280,6 +280,7 @@ class CalcIR(object):
         self._a1 = self._a2 = self._sz = self._irfile = self._sound = None
         self._n = self._f1 = self._f2 = self._ir = None
         self._cutoff = None
+        self._magnitude = -100
 
     def read_sndfile(self):
         f = self.destination_sound_file
@@ -382,6 +383,14 @@ class CalcIR(object):
         self._ir = None
 
     @property
+    def magnitude(self):
+        return self._magnitude
+    @magnitude.setter
+    def magnitude(self, v):
+        self._magnitude = v
+        self._ir = None
+
+    @property
     def n(self):
         if self._n is None:
             self.n = pow2roundup(max(len(self.a1), len(self.a2)))
@@ -422,7 +431,7 @@ class CalcIR(object):
             self.status("minimum phase filter")
             #self.ir = np.real(fft.ifft(mps(self.f1/self.f2, self.sz, 0), axis=0))
             self.ir_smoother = SmoothedIR(self.f1, self.f2, self.cutoff, self.rate)
-            self.ir = self.ir_smoother.get_ir(self.sz)
+            self.ir = self.ir_smoother.get_ir(self.sz, self._magnitude)
             self.status.clear()
         return self._ir
     @ir.setter

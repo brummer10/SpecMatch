@@ -1,9 +1,11 @@
 # SpecMatch 
 
-![SpechMatch](https://github.com/brummer10/SpecMatch/blob/main/SpecMatch.png?raw=true)
+<p align="center">
+    <img src="https://github.com/brummer10/SpecMatch/blob/main/SpecMatch.png?raw=true" />
+</p>
 
 A little python3 script to compare the spectrum of two sound-files and generate a
-Impulse Response File from the different.
+(Smoothed) Impulse Response File from the Spectral difference.
 
 ## Installing:
 ----------------
@@ -22,15 +24,14 @@ to uninstall it run
 
 `sudo pip uninstall ./dist/specmatch-0.9-py3-none-any.whl`
 
-
-
-But SpecMatch could be used without installing directly from the source tree, 
-just go to the specmatch folder and run ./specmatch
-You may need to make the file specmatch executable to do so.
-
 ## Running:
 ----------------
-It should be available from your desktop environment or the command
+
+SpecMatch could be used without installing directly from the source tree, 
+just go to the specmatch folder and run ./specmatch
+You may need to make the file specmatch executable and ensure that all dependencies been solved.
+
+When installed, it should be available from your desktop environment or the command
 line as "specmatch".
 
 
@@ -45,25 +46,28 @@ project file or create a new one (changes in projects will be
 auto-saved).
 
 Click on "Destination Sound", this is the Sound File you want to match,
-and select a file.
-For stereo sounds, you can select one of the channels (or
+and select a file. For stereo sounds, you can select one of the channels (or
 the sum) or produce a stereo IR.
 
 Use "Source File" to select a other Sound File,
-this is the Sound you wont to match the destignation, for comparison.
+this is the Sound you wont to match the destination.
 
 Both Files could have different size, no matter, as here we only compare the
 Frequency Spectrum of the Files. 
 
 Now you could do a Frequency Plot of the Source and the Destination File.
-Additional the differences will be shown and the resulting Smoothed IR-File.
+Additional the differences and the resulting Smoothed IR-File will be shown.
 You could as well do a Time Plot.
 
 To generated the IR-File you could set the normalise level (default -25 dBFS), 
 select the resulting IR-File-size (default 3500 samples)
 and you could select the Noise Level, that means the level below which
 the signal will be threaded as Noise (default -60 dB).
+Additional it's possible to set the maximum magnitude difference,
+means the level below the maximum magnitude, 
+were the minimum magnitude get clipped (default -100dB).
 
-You could select to generate a mono or a stereo IR-File.
+You could generate a mono or a stereo IR-File.
+
 When you press "Generate IR" a File-browser will pop up and
 let you choose were, and under which name, to save the IR-File.  
