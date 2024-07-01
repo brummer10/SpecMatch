@@ -1,4 +1,6 @@
 #! /bin/sh
-pip install .
+pip install ./dist/specmatch-0.9-py3-none-any.whl --break-system-packages
 update-mime-database /usr/share/mime
 update-desktop-database
+update-icon-caches /usr/local/share/icons/hicolor
+update-icon-caches /usr/share/icons/hicolor

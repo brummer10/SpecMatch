@@ -16,6 +16,7 @@ setup(
     package_data = {'specmatch': ['specmatch.glade']},
     data_files = [('share/applications', ['desktop/specmatch.desktop']),
                   ('share/mime/packages', ['desktop/specmatch.xml']),
+                  ('share/icons/hicolor/scalable/apps', ['desktop/specmatch.svg']),
                   ],
     install_requires = ['matplotlib','numpy','scipy','soundfile','PyGObject','pydub','resampy'],
     )

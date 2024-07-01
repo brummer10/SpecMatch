@@ -16,6 +16,10 @@ run
 
 `python3 setup.py  bdist_wheel`
 
+or use the new python3-build
+
+`python3 -m build --wheel`
+
 to build a wheel package and install it with 
 
 `sudo pip install ./dist/specmatch-0.9-py3-none-any.whl`
@@ -34,6 +38,10 @@ You may need to make the file specmatch executable and ensure that all dependenc
 When installed, it should be available from your desktop environment or the command
 line as "specmatch".
 
+
+<p align="center">
+    <img src="https://github.com/brummer10/SpecMatch/blob/desktop/specmath.svg" width="48" />
+</p>
 
 ## Usage:
 

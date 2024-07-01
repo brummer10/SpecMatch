@@ -1,6 +1,8 @@
 #! /bin/sh
-pip uninstall specmatch
+pip uninstall specmatch  --break-system-packages
 pdir=/usr/local/share/mime/packages 
 [ -d "$pdir" ] || mkdir -p "$pdir"
 update-mime-database /usr/local/share/mime
 update-desktop-database
+update-icon-caches /usr/local/share/icons/hicolor
+update-icon-caches /usr/share/icons/hicolor
