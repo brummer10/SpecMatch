@@ -1,19 +1,23 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
 #
+import os
+import json
+import argparse
+from os.path import abspath, dirname, join
+
 import gi
-
-
 gi.require_version("Gtk", "3.0")
 
+#pylint: disable=wrong-import-position
 from gi.repository import Gtk
 from gi.repository import GLib
-from pydub import effects, AudioSegment
+from pydub import AudioSegment
 
-import os, json, argparse
 import numpy as np
-import numpy.fft as fft
-import matplotlib;
+from numpy import fft
+
+import matplotlib
 if matplotlib.get_backend() != "GTK3Agg":
     matplotlib.use("GTK3Agg")
 import matplotlib.pyplot as plt
@@ -24,8 +28,7 @@ try:
 except ImportError:
     from specmatch.spectrum import CalcIR, fftfreq2, fft2spectrum, SmoothSpectrumSpline, clipdb
     from specmatch.audiofiles import open_sndfile, write_sndfile, read_sndfile, wav_format_only
-
-from os.path import abspath, dirname, join
+#pylint: enable=wrong-import-position
 
 current_dir = abspath(dirname(__file__))
 
@@ -38,6 +41,7 @@ class FileDialog(object):
         self.create = create
         self.audio = audio
         self.data_dir = data_dir
+        self.w = None
 
     def __call__(self, o=None):
         a = Gtk.FileChooserAction.SAVE if self.create else Gtk.FileChooserAction.OPEN
@@ -144,7 +148,9 @@ class SpecWindow(object):
         self.generate_ir.connect("clicked", FileDialog(self.set_file, self.get_file, 3, True))
         g("close").connect("clicked", lambda o: self.window.destroy())
         self.recorder = None
-        g("open").connect("clicked",FileDialog(self.set_file, self.get_file, 2, True, False, self.data_dir))
+        g("open").connect("clicked",FileDialog(
+                self.set_file, self.get_file, 2, True, False, self.data_dir)
+                )
 
         # entry elements
         self.ir_size = g("ir_size")
@@ -184,8 +190,12 @@ class SpecWindow(object):
         self.source_sound_filename = None
         self.destination_sound_name.set_text("---")
         self.source_sound_name.set_text("---")
-        self.destination_sound.connect("clicked", FileDialog(self.set_file, self.get_file, 0, False))
-        self.source_sound.connect("clicked", FileDialog(self.set_file, self.get_file, 1, True))
+        self.destination_sound.connect("clicked", FileDialog(
+                self.set_file, self.get_file, 0, False)
+                )
+        self.source_sound.connect("clicked", FileDialog(
+                self.set_file, self.get_file, 1, True)
+                )
 
         self.calc = CalcIR(DisplayStatus(self.status_display), self.get_sample_rate(), self.orig_ir)
 
@@ -319,18 +329,18 @@ class SpecWindow(object):
         self.calc.cutoff = self.ir_cut.get_value()
 
     def on_ir_normalize(self, o):
-       self.ir_norm = self.ir_normalize.get_value()
+        self.ir_norm = self.ir_normalize.get_value()
 
     def on_ir_magnitude(self, o):
-       self.calc.magnitude = self.ir_magnitude.get_value()
+        self.calc.magnitude = self.ir_magnitude.get_value()
 
     def on_channel(self, o, mode):
         self.calc.original_mode = mode
         self.convolver_box.set_sensitive(mode != -2)
 
     def match_target_amplitude(self,sound, target_dBFS):
-        self.change_in_dBFS = target_dBFS - sound.dBFS
-        return sound.apply_gain(self.change_in_dBFS)
+        change_in_dBFS = target_dBFS - sound.dBFS
+        return sound.apply_gain(change_in_dBFS)
 
     def set_file(self, nr, name):
         if nr == 0:
@@ -341,6 +351,7 @@ class SpecWindow(object):
             self.destination_sound_filename = name
             self.destination_sound_name.set_text(name)
             self.calc.destination_sound_file = f
+            self.calc.invalidate_ir()
         elif nr == 1:
             if os.path.exists(name):
                 f = open_sndfile(name, self.fixed_samplerate)
@@ -348,6 +359,12 @@ class SpecWindow(object):
                 if rate != f.samplerate:
                     raise ValueError("%s: rate mismatch (%d / %d)" % (name, f.samplerate, rate))
                 a = f.read_frames(f.nframes)
+                channel = self.calc.original_mode
+                if f.channels > 1 and channel >= -1:
+                    if channel < 0:
+                        a = np.sum(a, axis=1)
+                    else:
+                        a = a[:, channel]
                 if len(a.shape) == 1:
                     a = a.reshape((len(a), 1))
                 self.calc.source_sound = a
@@ -357,7 +374,8 @@ class SpecWindow(object):
                     self.ir_size.set_value(min(3500, len(a)))
             self.source_sound_filename = name
             self.source_sound_name.set_text(name)
-            self.set_file(0, self.destination_sound_filename)
+            self.calc.invalidate_ir()
+            #self.set_file(0, self.destination_sound_filename)
         elif nr == 2:
             self.change_file(name)
             return
@@ -386,8 +404,12 @@ class SpecWindow(object):
             return os.path.join(self.data_dir, "IR", "")
 
     def set_button_status(self):
-        orig_fn = self.destination_sound_filename is not None and os.path.exists(self.destination_sound_filename)
-        rec_fn = self.source_sound_filename is not None and os.path.exists(self.source_sound_filename)
+        orig_fn = self.destination_sound_filename is not None and os.path.exists(
+                self.destination_sound_filename
+                )
+        rec_fn = self.source_sound_filename is not None and os.path.exists(
+                self.source_sound_filename
+                )
         gen = orig_fn and self.calc.destination_sound_file.channels == 2
         for p in self.channel_label, self.channelbox, self.convolver_label, self.convolver_box:
             p.set_visible(gen)
@@ -433,6 +455,7 @@ class SpecWindow(object):
         plot_rec = g("plot_rec").get_active()
         plot_diff = g("plot_diff").get_active()
         display_smooth = self.display_smooth.get_active()
+        self.calc.invalidate_ir()
         rate = self.get_sample_rate()
         if plot_ir or plot_diff:
             n = max(2**16, len(self.calc.ir))
@@ -466,7 +489,9 @@ class SpecWindow(object):
                 self.diff_plot(True, ax, x, fd, ':', "red")
                 self.diff_plot(False, ax, x, fd, '--', "red", "Difference")
         if plot_ir:
-            self.plot_fft(ax, ir_fft, rate, color='black', label="IR [%d frames]" % len(self.calc.ir))
+            self.plot_fft(ax, ir_fft, rate, color='black',
+                    label="IR [%d frames]" % len(self.calc.ir)
+                    )
         ax.legend(loc='best')
         ax.get_xaxis().set_major_formatter(
             matplotlib.ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
@@ -482,6 +507,7 @@ class SpecWindow(object):
 
     def on_display_time(self, o):
         self.calc.status("generating plot")
+        self.calc.invalidate_ir()
         f = self.calc.ir
         x = np.arange(len(f))/self.get_sample_rate()
         fig = plt.figure("Spec - IR Time Domain")

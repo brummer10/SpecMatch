@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import numpy as np
@@ -176,7 +176,8 @@ class SmoothedIR(object):
         x1 = x[-1]
         s = -5
         h = x1 / x0
-        p = [(dy0 + h*s*log(h) - h*s)/(3*log(h)**2), -(2*dy0 + h*s*log(h) - 2*h*s)/(2*log(h)), dy0, y0]
+        p = [(dy0 + h*s*log(h) - h*s)/(3*log(h)**2),
+                -(2*dy0 + h*s*log(h) - 2*h*s)/(2*log(h)), dy0, y0]
         def calc_endslope(v):
             return np.polyval(p, log(v/x0))
         return calc_endslope
@@ -242,12 +243,12 @@ def pow2roundup(x):
     if x <= 0:
         return 0
     x -= 1
-    x |= x >> 1;
-    x |= x >> 2;
-    x |= x >> 4;
-    x |= x >> 8;
-    x |= x >> 16;
-    return x+1;
+    x |= x >> 1
+    x |= x >> 2
+    x |= x >> 4
+    x |= x >> 8
+    x |= x >> 16
+    return x+1
 
 
 class CalcIR(object):
@@ -259,7 +260,7 @@ class CalcIR(object):
     The formulas are:
 
     a1: the reference signal
-    a2: recorded Guitarix output signal (without IR)
+    a2: the source signal 
 
     n = pow2roundup(max(len(a1), len(a2)))
     f1 = fft(a1, n, axis=0)
@@ -315,6 +316,7 @@ class CalcIR(object):
     def destination_sound_file(self, n):
         self._destination_sound_file = n
         self.a1 = None
+       # self.a2 = None
 
     @property
     def original_range(self):
@@ -440,10 +442,9 @@ class CalcIR(object):
         self._irfile = None
         self._sound = None
 
-    def invalidate_guitarix_output(self):
+    def invalidate_ir(self):
         self.a2 = None
-        if self.orig_ir is not None:
-            self.a1 = None
+        self.a1 = None
 
     def irfile_changed(self):
         i = self._irfile
