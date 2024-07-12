@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "specmatch"
+dynamic = ["version"]
+description = "Calculate an IR to match a spectrum"
+readme = "README.md"
+license = ""
+#license-files = { paths = ["LICENSE.md"] }
+dependencies = [
+    "matplotlib",
+    "numpy",
+    "pydub",
+    "PyGObject",
+    "resampy",
+    "scipy",
+    "soundfile",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/brummer10/SpecMatch"
+"Bug Tracker" = "https://github.com/brummer10/SpecMatch/issues"
+
+[tool.hatch.version]
+path = "specmatch/__init__.py"
+
+[tool.hatch.build.targets.wheel.shared-data]
+"desktop/specmatch.desktop" = "share/applications/specmatch.desktop"
+"desktop/specmatch.xml" = "share/mime/packages/specmatch.xml"
+"desktop/specmatch.svg" = "share/icons/hicolor/scalable/apps/specmatch.svg"
+
+[tool.hatch.build.targets.wheel]
+packages = ["specmatch"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/specmatch",
+]
+
+[project.scripts]
+specmatch = "specmatch.ui:main"
