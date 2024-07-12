@@ -1,8 +1,17 @@
-#! /bin/sh
-pip uninstall specmatch  --break-system-packages
-pdir=/usr/local/share/mime/packages 
-[ -d "$pdir" ] || mkdir -p "$pdir"
-update-mime-database /usr/local/share/mime
-update-desktop-database
-update-icon-caches /usr/local/share/icons/hicolor
-update-icon-caches /usr/share/icons/hicolor
+#!/bin/bash
+
+PREFIX="${PREFIX:-/usr/local}"
+PYTHON="${PYTHON:-python3}"
+
+if [[ $(id -u) -ne 0 ]]; then
+    _sudo="sudo"
+fi
+
+$_sudo "$PYTHON" -m pip uninstall --break-system-packages specmatch
+
+which update-mime-database &>/dev/null && \
+    $_sudo update-mime-database "$PREFIX"/share/mime
+which update-desktop-database &>/dev/null && \
+    $_sudo update-desktop-database
+which gtk-update-icon-cache &>/dev/null && \
+    $_sudo gtk-update-icon-cache -q "$PREFIX"/share/icons/hicolor

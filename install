@@ -1,6 +1,22 @@
-#! /bin/sh
-pip install ./dist/specmatch-0.9-py3-none-any.whl --break-system-packages
-update-mime-database /usr/share/mime
-update-desktop-database
-update-icon-caches /usr/local/share/icons/hicolor
-update-icon-caches /usr/share/icons/hicolor
+#!/bin/bash
+
+PREFIX="${PREFIX:-/usr/local}"
+PYTHON="${PYTHON:-python3}"
+
+if [[ $(id -u) -ne 0 ]]; then
+    _sudo="sudo"
+fi
+
+version=$(grep '^__version' specmatch/__init__.py | cut -d '"' -f 2)
+
+"$PYTHON" -m build --wheel
+$_sudo "$PYTHON" -m pip install \
+    --break-system-packages \
+    ./dist/specmatch-$version-*.whl
+
+which update-mime-database &>/dev/null && \
+    $_sudo update-mime-database "$PREFIX"/share/mime
+which update-desktop-database &>/dev/null && \
+    $_sudo update-desktop-database
+which gtk-update-icon-cache &>/dev/null && \
+    $_sudo gtk-update-icon-cache -q "$PREFIX"/share/icons/hicolor
