@@ -7,8 +7,8 @@ name = "specmatch"
 dynamic = ["version"]
 description = "Calculate an IR to match a spectrum"
 readme = "README.md"
-license = ""
-#license-files = { paths = ["LICENSE.md"] }
+license = "MIT"
+license-files = { paths = ["LICENSE.md"] }
 dependencies = [
     "matplotlib",
     "numpy",
