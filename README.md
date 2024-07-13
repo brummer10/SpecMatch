@@ -138,6 +138,12 @@ When you press "Generate IR" a file browser will pop up and lets you choose the
 name and path where to save the generated IR file.
 
 
+## Author and License
+
+SpecMatch was created by *Hermann Meyer*  and is released under the MIT
+License. Please see the file [LICENSE.md](./LICENSE.md) for details.
+
+
 [build]: https://pypi.org/project/build/
 [hatchling]: https://pypi.org/project/hatchling/
 [installer]: https://pypi.org/project/installer/
