@@ -216,7 +216,7 @@ class SmoothedIR(object):
         x = fftfreq2(sz, 1.0/self.rate)
         ir = np.real(fft.ifft(mps(spectrum2fft(self(x)),0,mag),axis=0))
         if wd:
-            w = sig.hamming(2*wd)[-wd:]
+            w = sig.windows.hamming(2*wd)[-wd:]
             for i in range(ir.shape[1]):
                 ir[-wd:,i] *= w
         return ir
